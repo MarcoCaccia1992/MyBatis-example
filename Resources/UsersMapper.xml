@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mybatisexample.service.UsersMapper">
+
+    <select id="getUsersById" parameterType="Integer" resultType="com.mybatisexample.entity.UsersEntity">
+        SELECT id_user, name_user, surname_user, email_user FROM users WHERE id_user = #{id_user}
+    </select>
+
+    <!-- il tag type, rappreseenta il tipo ovvero l'entità su cui mappare.. l'id è l'id di riferimento per tutte le query-->
+    <resultMap type="UsersEntity" id="UsersEntityResult">
+        <id property="id_user" column="id_user"/>
+        <result property="name_user" column="name_user"/>
+        <result property="surname_user" column="surname_user"/>
+        <result property="email_user" column="email_user"/>
+    </resultMap>
+
+    <!-- in questo caso l'id ferve per far capire all'applicativo in fase di run quale query dovrà eseguire il programma, in questo caso una select...
+         quel id si riferisce anche al nome del metodo presente nell'interfaccia al quale dare cotrpo-->
+    <select id="getAllUsers" resultMap="UsersEntityResult">
+        SELECT * FROM users ORDER BY id_user
+    </select>
+
+    <insert id="insertNewUser" parameterType="UsersEntity" useGeneratedKeys="true" keyProperty="id_user">
+        INSERT INTO users(id_user, name_user, surname_user, email_user) VALUES(#{id_user}, #{name_user},
+        #{surname_user}, #{email_user})
+    </insert>
+
+    <update id="updateUserSurname" parameterType="UsersEntity">
+        UPDATE users SET surname_user = #{surname_user} WHERE id = #{id_user}
+    </update>
+
+    <update id="updateUserEmail" parameterType="UsersEntity">
+        UPDATE users SET email_user = #{email_user} WHERE id = #{id_user}
+    </update>
+
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM users WHERE id_user = #{id_user}
+    </delete>
+
+                     <!--         STORED PROCEDURE        -->
+
+
+    <!-- parameterType="map" serve nel caso si debba passare più di un valore come parametro della stored procedure
+         e creare a codice una mappa con chiave valore stringa per poi passarla come input vedi la classe UtilsMyBatis.java-->
+    <insert id="insertNewUserSP" statementType="CALLABLE" parameterType="map">
+        {CALL sp_insertUsersCheckId(#{name_user}, #{surname_user}, #{email_user})}
+    </insert>
+
+    <delete id="deleteUserSP" statementType="CALLABLE" parameterType="int">
+        {CALL sp_deleteUsers(#{id_user})}
+    </delete>
+
+    <update id="updateUsersIDsSP" statementType="CALLABLE" parameterType="int">
+        {CALL sp_orderUsersIDS(#{id_user})}
+    </update>
+
+    <update id="updateUsersAllFieldsSP" statementType="CALLABLE" parameterType="map">
+        {CALL sp_updateUsers(#{id_user}, #{name_user}, #{surname_user}, #{email_user})}
+    </update>
+
+    <update id="updateUserNameSP" statementType="CALLABLE" parameterType="map">
+        {CALL sp_updateUserNameByID(#{id_user}, #{name_user})}
+    </update>
+
+    <update id="updateUserSurnameSP" statementType="CALLABLE" parameterType="map">
+        {CALL sp_updateUserSurnameByID(#{id_user}, #{surname_user})}
+    </update>
+
+    <update id="updateUserEmailSP" statementType="CALLABLE" parameterType="map">
+        {CALL sp_updateUserEmailByID(#{id_user}, #{email_user})}
+    </update>
+
+
+
+
+</mapper>
